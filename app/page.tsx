@@ -14,6 +14,9 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
+type Language = "en" | "it";
+type Translator = (enText: string, itText: string) => string;
+
 // Unità neutre per BnB / hotel / appartamenti
 const units = [
   {
@@ -77,7 +80,11 @@ const stackCards = [
   },
 ];
 
-function StackSection({ t }) {
+type StackSectionProps = {
+  t: Translator;
+};
+
+function StackSection({ t }: StackSectionProps) {
   const ref = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -124,7 +131,11 @@ function StackSection({ t }) {
   );
 }
 
-function UnitsSection({ t }) {
+type UnitsSectionProps = {
+  t: Translator;
+};
+
+function UnitsSection({ t }: UnitsSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -254,7 +265,11 @@ function UnitsSection({ t }) {
 }
 
 // HERO – titolo e sottotitolo
-const HeroTitle = ({ language }) => (
+type HeroTitleProps = {
+  language: Language;
+};
+
+const HeroTitle: React.FC<HeroTitleProps> = ({ language }) => (
   <div className="space-y-4">
     <p className="inline-flex items-center gap-2 rounded-full border border-white/22 bg-black/25 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-slate-100 backdrop-blur-sm">
       <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
@@ -268,7 +283,11 @@ const HeroTitle = ({ language }) => (
   </div>
 );
 
-const HeroSubtitle = ({ language }) => (
+type HeroSubtitleProps = {
+  language: Language;
+};
+
+const HeroSubtitle: React.FC<HeroSubtitleProps> = ({ language }) => (
   <p className="mt-3 text-sm sm:text-base md:text-lg text-slate-100/90 max-w-xl">
     {language === "en"
       ? "Built as a neutral interface layer for B&Bs, apartments and small hotels: you can reskin colors, typography and flows without touching the core layout."
@@ -276,23 +295,23 @@ const HeroSubtitle = ({ language }) => (
   </p>
 );
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
   const [mounted, setMounted] = useState(false);
-  const [language, setLanguage] = useState<"en" | "it">("it");
+  const [language, setLanguage] = useState<Language>("it");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // REGISTRAZIONE PLUGIN SOLO CLIENT + DISATTIVA SSR DI FATTO
+  // Registrazione plugin solo client
   useEffect(() => {
     setMounted(true);
     gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
   }, []);
 
   if (!mounted) {
-    // Nessun markup da idratare -> niente hydration error
+    // Evita hydration mismatch dovuti alle animazioni
     return null;
   }
 
-  const t = (enText: string, itText: string) =>
+  const t: Translator = (enText, itText) =>
     language === "en" ? enText : itText;
 
   const scrollToSection = (id: string) => {
